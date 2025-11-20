@@ -14,4 +14,4 @@ class ADT_panel(bpy.types.Panel):
         layout = self.layout
         layout.operator("ronge_adt.adt1", text="adt1")
         row = layout.row()
-        row.prop(context.scene.adt_props, "number", text="数字")
+        row.prop(context.scene.adt_props, "number", text="数字1")
