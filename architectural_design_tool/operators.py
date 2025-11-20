@@ -1,12 +1,16 @@
 import bpy
-import functions as fun
+from . import functions as fun
 
-class ADT1(bpy.types.Operator):
+class Merge(bpy.types.Operator):
     """第一组类型"""
 
-    bl_idname = "ronge_adt.adt1"
-    bl_label = "ADT1"
+    bl_idname = "ronge_adt.merge"
+    bl_label = "Merge"
 
     def execute(self, context):
-        fun.calBool()
+        baseBox = fun.randomCube(1,2,1)
+        addBox = fun.randomCube(0.5,1,1)
+        print(fun.isIntersect(baseBox,addBox))
+        print(fun.isInside(baseBox,addBox))
+        # fun.calBool(baseBox,addBox,"add")
         return {"FINISHED"}

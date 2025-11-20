@@ -12,6 +12,6 @@ class ADT_panel(bpy.types.Panel):
 
     def draw(self, context):
         layout = self.layout
-        layout.operator("ronge_adt.adt1", text="adt1")
-        row = layout.row()
-        row.prop(context.scene.adt_props, "number", text="数字1")
+        layout.operator("ronge_adt.merge", text="规则1生成")
+        # row = layout.row()
+        # row.prop(context.scene.adt_props, "number", text="规则1生成")

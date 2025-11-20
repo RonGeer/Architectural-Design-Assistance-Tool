@@ -13,7 +13,7 @@ from . import ui
 
 
 classs = [
-    operators.ADT1,
+    operators.Merge,
     #   props.ADTProps,
     ui.ADT_panel,
 ]
