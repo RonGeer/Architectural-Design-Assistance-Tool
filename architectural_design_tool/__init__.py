@@ -11,22 +11,26 @@ from . import ui
 from . import props
 
 
-classs = [
+classes = [
+    operators.Setbase,
     operators.Merge,
+    operators.Nest,
     props.ADTProps,
+    ui.Prop_panel,
     ui.Merge_panel,
+    ui.Nest_panel
 ]
 
 
 def register():
-    for cls in classs:
+    for cls in classes:
         bpy.utils.register_class(cls)
 
     bpy.types.Scene.adt_props = bpy.props.PointerProperty(type=props.ADTProps)
 
 
 def unregister():
-    for cls in classs:
+    for cls in classes:
         bpy.utils.unregister_class(cls)
 
     del bpy.types.Scene.adt_props

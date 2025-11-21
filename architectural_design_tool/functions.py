@@ -1,6 +1,7 @@
 import bpy
 import random
 import bmesh
+import math
 from mathutils.bvhtree import BVHTree
 
 if 1 == 1:  # 基础函数
@@ -10,7 +11,29 @@ if 1 == 1:  # 基础函数
 
     def applyMod(obj, name):
         bpy.context.view_layer.objects.active = obj
-        bpy.ops.object.modifier_apply(modifier=name)  
+        bpy.ops.object.modifier_apply(modifier=name)
+        
+    def getBound(obj):
+        """OutPut:+x,+y,+z,-x,-y,-z"""
+        verts = [obj.matrix_world @ v.co for v in obj.data.vertices]
+        
+        maxx,maxy,maxz,minx,miny,minz = -math.inf,-math.inf,-math.inf,math.inf,math.inf,math.inf
+        
+        for co in verts:
+            if co[0]>maxx:
+                maxx = co[0]
+            if co[0]<minx:
+                minx = co[0]
+            if co[1]>maxy:
+                maxy = co[1]
+            if co[1]<miny:
+                miny = co[1]
+            if co[2]>maxz:
+                maxz = co[2]
+            if co[2]<minz:
+                minz = co[2]
+            
+        return maxx,maxy,maxz,minx,miny,minz
 
 
 if 1 == 1:  # 生成函数
@@ -33,7 +56,7 @@ if 1 == 1:  # 生成函数
         return cube
 
     def calBool(baseobj, boolobj, type):
-        """Boolean type:add,sub,mul"""
+        """Boolean type(string):add,sub,mul"""
 
         mod = baseobj.modifiers.new(name="Boolean", type="BOOLEAN")
 
@@ -63,6 +86,43 @@ if 1 == 1:  # 生成函数
             mod.offset = -1
 
         applyMod(obj, "Solidify")
+    
+    def snapEdge(baseobj,moveobj,edgeDir):
+        """edgeDir(string):+x,+y,+z,-x,-y,-z"""
+        # 获取两个物体的边界框
+        base_maxx, base_maxy, base_maxz, base_minx, base_miny, base_minz = getBound(baseobj)
+        move_maxx, move_maxy, move_maxz, move_minx, move_miny, move_minz = getBound(moveobj)
+        
+        # 获取当前moveobj的位置
+        move_loc = moveobj.location.copy()
+        
+        # 根据边缘方向计算新的位置
+        if edgeDir == "+x":  # 将moveobj的+x边缘吸附到baseobj的+x边缘
+            new_x = base_maxx - (move_maxx - move_loc.x)
+            moveobj.location.x = new_x
+            
+        elif edgeDir == "-x":  # 将moveobj的-x边缘吸附到baseobj的-x边缘
+            new_x = base_minx + (move_loc.x - move_minx)
+            moveobj.location.x = new_x
+            
+        elif edgeDir == "+y":  # 将moveobj的+y边缘吸附到baseobj的+y边缘
+            new_y = base_maxy - (move_maxy - move_loc.y)
+            moveobj.location.y = new_y
+            
+        elif edgeDir == "-y":  # 将moveobj的-y边缘吸附到baseobj的-y边缘
+            new_y = base_miny + (move_loc.y - move_miny)
+            moveobj.location.y = new_y
+            
+        elif edgeDir == "+z":  # 将moveobj的+z边缘吸附到baseobj的+z边缘
+            new_z = base_maxz - (move_maxz - move_loc.z)
+            moveobj.location.z = new_z
+            
+        elif edgeDir == "-z":  # 将moveobj的-z边缘吸附到baseobj的-z边缘
+            new_z = base_minz + (move_loc.z - move_minz)
+            moveobj.location.z = new_z
+        
+        else:
+            print(f"无效的边缘方向: {edgeDir}，请使用: +x, +y, +z, -x, -y, -z")
 
 
 if 1 == 1:  # 逻辑函数
@@ -96,38 +156,26 @@ if 1 == 1:  # 逻辑函数
         return bool(intersect)
 
     def isInside(boxA, boxB):  # 判断是否完全被包围
-
+        """OutPut:isInside(bool),BiggerObj(string):boxA,boxB"""
         vola = boxA.dimensions[0] * boxA.dimensions[1] * boxA.dimensions[2]
         volb = boxB.dimensions[0] * boxB.dimensions[1] * boxB.dimensions[2]
 
+        biggerobj = ""
         if vola > volb:
             outer_obj = boxA
             inner_obj = boxB
+            bigobj = "boxA"
         else:
             outer_obj = boxB
             inner_obj = boxA
+            bigobj = "boxB"
 
         inner_verts = [inner_obj.matrix_world @ v.co for v in inner_obj.data.vertices]
-        outer_verts = [outer_obj.matrix_world @ v.co for v in outer_obj.data.vertices]
         
-        maxx,maxy,maxz,minx,miny,minz = -9999,-9999,-9999,9999,9999,9999
-        
-        for co in outer_verts:
-            if co[0]>maxx:
-                maxx = co[0]
-            if co[0]<minx:
-                minx = co[0]
-            if co[1]>maxy:
-                maxy = co[1]
-            if co[1]<miny:
-                miny = co[1]
-            if co[2]>maxz:
-                maxz = co[2]
-            if co[2]<minz:
-                minz = co[2]
+        maxx,maxy,maxz,minx,miny,minz = getBound(outer_obj)
         
         for co in inner_verts:
             if co[0]>maxx or co[0]<minx or co[1]>maxy or co[1]<miny or co[2]>maxz or co[2]<minz:
                 return False
-        return True
+        return True,biggerobj
                 

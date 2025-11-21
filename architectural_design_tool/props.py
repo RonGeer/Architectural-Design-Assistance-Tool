@@ -5,6 +5,10 @@ class ADTProps(bpy.types.PropertyGroup):
     #     name="Number", description="数字", default=42, min=0, max=1000
     # ) # pyright: ignore[reportInvalidTypeForm]
     
+    max_attempts: bpy.props.IntProperty(
+        name="Max Attempts", description="最大尝试次数", default=200, min=1, max=100000
+    ) # pyright: ignore[reportInvalidTypeForm]
+    
     min_size: bpy.props.FloatProperty(
         name="Min Size", description="最小生成形体", default=0.5, min=0, max=1000
     ) # pyright: ignore[reportInvalidTypeForm]
@@ -14,10 +18,10 @@ class ADTProps(bpy.types.PropertyGroup):
     ) # pyright: ignore[reportInvalidTypeForm]
     
     max_area: bpy.props.FloatProperty(
-        name="Max Area", description="最大生成范围", default=1, min=0, max=1000
+        name="Max Area", description="最大生成位置", default=1, min=0, max=1000
     ) # pyright: ignore[reportInvalidTypeForm]
     
-    max_attempts: bpy.props.IntProperty(
-        name="Max Attempts", description="最大尝试次数", default=200, min=1, max=1000
+    add_box_size: bpy.props.FloatProperty(
+        name="Add Box Size", description="附加体比例", default=0.7, min=0, max=11
     ) # pyright: ignore[reportInvalidTypeForm]
     
