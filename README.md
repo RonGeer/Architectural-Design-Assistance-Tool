@@ -7,11 +7,11 @@ Blender-based Architectural Design Assistant Tool
     Branch
 
 形变规则：
-    Grade
-    Compress
+    Offset
+    Compres
     Shift
 
 剔除规则：
     Carve
     Frature
-    Offset
+    Extract

@@ -8,14 +8,13 @@ bl_info = {
 import bpy
 from . import operators
 from . import ui
-
-# from . import props
+from . import props
 
 
 classs = [
     operators.Merge,
-    #   props.ADTProps,
-    ui.ADT_panel,
+    props.ADTProps,
+    ui.Merge_panel,
 ]
 
 
@@ -23,14 +22,14 @@ def register():
     for cls in classs:
         bpy.utils.register_class(cls)
 
-    # bpy.types.Scene.adt_props = bpy.props.PointerProperty(type=props.ADTProps)
+    bpy.types.Scene.adt_props = bpy.props.PointerProperty(type=props.ADTProps)
 
 
 def unregister():
     for cls in classs:
         bpy.utils.unregister_class(cls)
 
-    # del bpy.types.Scene.adt_props
+    del bpy.types.Scene.adt_props
 
 
 if __name__ == "__main__":

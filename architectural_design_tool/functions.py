@@ -15,13 +15,13 @@ if 1 == 1:  # 基础函数
 
 if 1 == 1:  # 生成函数
 
-    def randomCube(minsize, maxsize, posarea):
-        lenghx = random.uniform(minsize, maxsize)
-        lenghy = random.uniform(minsize, maxsize)
-        lenghz = random.uniform(minsize, maxsize)
-        posx = random.uniform(0, posarea)
-        posy = random.uniform(0, posarea)
-        posz = random.uniform(0, posarea)
+    def randomCube(min_size, max_size, max_area):
+        lenghx = random.uniform(min_size, max_size)
+        lenghy = random.uniform(min_size, max_size)
+        lenghz = random.uniform(min_size, max_size)
+        posx = random.uniform(0, max_area)
+        posy = random.uniform(0, max_area)
+        posz = random.uniform(0, max_area)
         bpy.ops.mesh.primitive_cube_add(
             size=1,
             enter_editmode=False,
@@ -41,7 +41,7 @@ if 1 == 1:  # 生成函数
         if type == "add":
             t = "UNION"
         if type == "sub":
-            t == "DIFFERENCE"
+            t = "DIFFERENCE"
         if type == "mul":
             t = "INTERSECT"
 
@@ -123,5 +123,5 @@ if 1 == 1:  # 逻辑函数
         for co in inner_verts:
             if co[0]>maxx or co[0]<minx or co[1]>maxy or co[1]<miny or co[2]>maxz or co[2]<minz:
                 return False
-            return True
+        return True
                 
