@@ -3,32 +3,53 @@ import random
 import bmesh
 import math
 from mathutils.bvhtree import BVHTree
+from mathutils import Vector, Matrix
 
 if 1 == 1:  # 基础函数
 
+    def cross(v1,v2):
+        return Vector((v1[1]*v2[2]-v1[2]*v2[1],v1[2]*v2[0]-v1[0]*v2[2],v1[0]*v2[1]-v1[1]*v2[0]))
+    
+    def dir2Vec3(dir):
+        if dir == "+x":
+            return Vector((1, 0, 0))
+        elif dir == "+y":
+            return Vector((0, 1, 0))
+        elif dir == "+z":
+            return Vector((0, 0, 1))
+        elif dir == "-x":
+            return Vector((-1, 0, 0))
+        elif dir == "-y":
+            return Vector((0, -1, 0))
+        elif dir == "-z":
+            return Vector((0, 0, -1))
+        else:
+            return Vector((0, 0, 0))
+
     def randomValue(min, max):
         return random.uniform(min, max)
-    
+
     def randomBool():
         return random.choice([True, False])
-    
+
     def setActive(obj):
         bpy.context.view_layer.objects.active = obj
-        
-    def copyobj(obj):     
+
+    def copyobj(obj):
         new_obj = obj.copy()
         new_obj.data = obj.data.copy()
         bpy.context.collection.objects.link(new_obj)
         bpy.context.view_layer.objects.active = new_obj
-        
+
         return new_obj
-    
+
     def delobj(obj):
         bpy.data.objects.remove(obj)
 
     def applyMod(obj, name):
         bpy.context.view_layer.objects.active = obj
         bpy.ops.object.modifier_apply(modifier=name)
+        return obj
 
     def getBound(obj):
         """OutPut:+x,+y,+z,-x,-y,-z"""
@@ -61,6 +82,49 @@ if 1 == 1:  # 基础函数
 
 
 if 1 == 1:  # 生成函数
+    
+    def optimizeMesh(obj, merge_threshold=0.001):
+        
+        setActive(obj)
+        
+        bpy.ops.object.mode_set(mode='EDIT')
+        bm = bmesh.from_edit_mesh(obj.data)
+
+        bmesh.ops.remove_doubles(
+            bm, 
+            verts=bm.verts, 
+            dist=merge_threshold
+        )
+        
+        bmesh.update_edit_mesh(obj.data)
+        
+        bpy.ops.object.mode_set(mode='OBJECT')
+        
+        return obj
+    def randomInsidePoint(obj):
+        
+        maxx, maxy, maxz, minx, miny, minz = getBound(obj)
+        
+        posx = randomValue(minx, maxx)
+        posy = randomValue(miny, maxy)
+        posz = randomValue(minz, maxz)
+        
+        return Vector((posx, posy, posz))
+    
+    def randomDir():
+        return random.choice(["+x", "+y", "+z", "-x", "-y", "-z"])
+    
+    def randomVector(dir = Vector((0,0,0))):
+        """dir为限定的垂直方向（Vector）"""
+        
+        rdir = Vector((randomValue(-1,1),randomValue(-1,1),randomValue(-1,1))).normalized()
+        
+        if dir == Vector((0,0,0)):
+            return rdir
+        else:
+            dir_component = rdir.dot(dir)
+            caled_rdir = rdir - dir_component * dir
+            return caled_rdir.normalized()
 
     def randomCube(min_size, max_size, max_area):
         lenghx = randomValue(min_size, max_size)
@@ -97,6 +161,7 @@ if 1 == 1:  # 生成函数
 
         applyMod(baseobj, "Boolean")
         delobj(boolobj)
+        return baseobj
 
     def meshTowall(obj, inout="out", thick=0.1):
         """Solidify"""
@@ -154,13 +219,48 @@ if 1 == 1:  # 生成函数
 
     def offsetShell(baseobj, minthick, maxthick, maxoffset):  # 生成offset的外壳模型
         """Solidify"""
+
         mod = baseobj.modifiers.new(name="Solidify", type="SOLIDIFY")
         mod.solidify_mode = "NON_MANIFOLD"
         mod.nonmanifold_thickness_mode = "CONSTRAINTS"
         mod.thickness = randomValue(minthick, maxthick)
         mod.offset = randomValue(0, maxoffset)
-        
-        # applyMod(baseobj, "Solidify")
+
+        return applyMod(baseobj, "Solidify")
+
+    def crateBoxWithDir(point, stretchdir, updir, width, height, depth, isCenter=False):
+
+        bpy.ops.mesh.primitive_cube_add(size=1, enter_editmode=False, align="WORLD")
+        box = bpy.context.active_object
+
+        if isCenter:
+            box.scale = (width, depth * 2, height)
+
+        else:
+            origin_offset = Vector((0, -0.5, 0))
+
+            for vertex in box.data.vertices:
+                vertex.co -= origin_offset
+
+            box.scale = (width, depth, height)
+
+        bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+
+        right_vec = stretchdir.cross(updir).normalized()
+        rotation_matrix = Matrix(
+            (
+                (right_vec.x, updir.x, stretchdir.x, 0),
+                (right_vec.y, updir.y, stretchdir.y, 0),
+                (right_vec.z, updir.z, stretchdir.z, 0),
+                (0, 0, 0, 1),
+            )
+        )
+
+        box.matrix_world = rotation_matrix
+
+        box.location = point
+
+        return box
 
 
 if 1 == 1:  # 逻辑函数
@@ -223,3 +323,18 @@ if 1 == 1:  # 逻辑函数
             ):
                 return False
         return True, biggerobj
+
+    def isPontinside(point, obj):
+        
+        maxx, maxy, maxz, minx, miny, minz = getBound(obj)
+        
+        if (
+            point[0] > maxx
+            or point[0] < minx
+            or point[1] > maxy
+            or point[1] < miny
+            or point[2] > maxz
+            or point[2] < minz
+        ):
+            return False
+        return True

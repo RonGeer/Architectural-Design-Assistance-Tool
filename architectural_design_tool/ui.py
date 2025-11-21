@@ -41,6 +41,20 @@ class Merge_panel(bpy.types.Panel):
         
         layout.operator("ronge_adt.merge", text="增加Merge")
         
+class Extract_panel(bpy.types.Panel):
+    """Extract生成"""
+
+    bl_label = "+Extract"
+    bl_idname = "VIEW3D_PT_Extract_panel"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "ADT"
+
+    def draw(self, context):
+        layout = self.layout
+        
+        layout.operator("ronge_adt.extract", text="增加Extract")
+        
          
 # class Nest_panel(bpy.types.Panel):
 #     """Nest生成"""
@@ -57,19 +71,19 @@ class Merge_panel(bpy.types.Panel):
 #         layout.operator("ronge_adt.nest", text="增加Neste")
         
         
-class Branch_panel(bpy.types.Panel):
-    """Branch生成"""  
+# class Branch_panel(bpy.types.Panel):
+#     """Branch生成"""  
     
-    bl_label = "+Branch"
-    bl_idname = "VIEW3D_PT_branch_panel"
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "UI"
-    bl_category = "ADT"
+#     bl_label = "+Branch"
+#     bl_idname = "VIEW3D_PT_branch_panel"
+#     bl_space_type = "VIEW_3D"
+#     bl_region_type = "UI"
+#     bl_category = "ADT"
 
-    def draw(self, context):
-        layout = self.layout
+#     def draw(self, context):
+#         layout = self.layout
 
-        layout.operator("ronge_adt.branch", text="增加Branch")
+#         layout.operator("ronge_adt.branch", text="增加Branch")
         
 class Offset_panel(bpy.types.Panel):
     """Offset形变"""  
@@ -91,3 +105,22 @@ class Offset_panel(bpy.types.Panel):
         box.prop(props, "offset_maxoffset", text="最大偏移")
         
         layout.operator("ronge_adt.offset", text="Offset形变")
+        
+class Shift_panel(bpy.types.Panel):
+    """Shift形变"""  
+    
+    bl_label = "@Shift"
+    bl_idname = "VIEW3D_PT_shift_panel"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "ADT" 
+    
+    def draw(self, context):
+        layout = self.layout        
+        
+        box = layout.box()
+        box.label(text="生成参数:")
+        props = context.scene.adt_props
+        box.prop(props, "shift_maxoffset", text="最大剪切偏移")
+        box.prop(props, "shift_maxcutbox", text="最大剪切体大小")
+        layout.operator("ronge_adt.shift", text="Shift形变")
