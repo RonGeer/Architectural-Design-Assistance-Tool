@@ -12,8 +12,8 @@ Blender-based Architectural Design Assistant Tool
 形变规则：
     Offset
         各面沿着面方向扩展或收缩一定距离
-    Compres
-        随机沿轴切刀，切处向外拓展，轴向面距离靠近
+    Twist
+        沿着某个轴扭曲
     Shift
         随机沿轴切刀，滑移后合并
 

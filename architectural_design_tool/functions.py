@@ -228,7 +228,7 @@ if 1 == 1:  # 生成函数
 
         return applyMod(baseobj, "Solidify")
 
-    def crateBoxWithDir(point, stretchdir, updir, width, height, depth, isCenter=False):
+    def crateBoxWithDir(point, updir, stretchdir, width, height, depth, isCenter=False):
 
         bpy.ops.mesh.primitive_cube_add(size=1, enter_editmode=False, align="WORLD")
         box = bpy.context.active_object
@@ -246,12 +246,12 @@ if 1 == 1:  # 生成函数
 
         bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
 
-        right_vec = stretchdir.cross(updir).normalized()
+        right_vec = updir.cross(stretchdir).normalized()
         rotation_matrix = Matrix(
             (
-                (right_vec.x, updir.x, stretchdir.x, 0),
-                (right_vec.y, updir.y, stretchdir.y, 0),
-                (right_vec.z, updir.z, stretchdir.z, 0),
+                (right_vec.x, stretchdir.x, updir.x, 0),
+                (right_vec.y, stretchdir.y, updir.y, 0),
+                (right_vec.z, stretchdir.z, updir.z, 0),
                 (0, 0, 0, 1),
             )
         )

@@ -55,6 +55,20 @@ class Extract_panel(bpy.types.Panel):
         
         layout.operator("ronge_adt.extract", text="增加Extract")
         
+class Branch_panel(bpy.types.Panel):
+    """Branch生成"""
+    
+    bl_label = "+Branch"
+    bl_idname = "VIEW3D_PT_branch_panel"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "ADT"      
+    
+    def draw(self, context):
+        layout = self.layout
+        
+        layout.operator("ronge_adt.branch", text="增加Branch")
+        
          
 # class Nest_panel(bpy.types.Panel):
 #     """Nest生成"""

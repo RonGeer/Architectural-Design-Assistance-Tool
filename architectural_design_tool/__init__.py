@@ -18,6 +18,7 @@ classes = [
     operators.Offset,
     operators.Shift,
     operators.Carve,
+    operators.Branch,
     # operators.Nest,
     props.ADTProps,
     ui.Prop_panel,
@@ -25,9 +26,9 @@ classes = [
     ui.Extract_panel,
     ui.Offset_panel,
     ui.Shift_panel,
-
+    ui.Branch_panel
     # ui.Nest_panel,
-    # ui.Branch_panel
+    
     
 ]
 
