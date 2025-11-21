@@ -14,12 +14,14 @@ from . import props
 classes = [
     operators.Setbase,
     operators.Merge,
-    operators.Nest,
-    operators.Branch,
+    operators.Carve,
+    operators.Offset,
+    # operators.Nest,
     props.ADTProps,
     ui.Prop_panel,
     ui.Merge_panel,
-    ui.Nest_panel,
+    ui.Offset_panel,
+    # ui.Nest_panel,
     ui.Branch_panel
     
 ]

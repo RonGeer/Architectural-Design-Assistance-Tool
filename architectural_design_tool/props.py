@@ -6,7 +6,7 @@ class ADTProps(bpy.types.PropertyGroup):
     # ) # pyright: ignore[reportInvalidTypeForm]
     
     max_attempts: bpy.props.IntProperty(
-        name="Max Attempts", description="最大尝试次数", default=200, min=1, max=100000
+        name="Max Attempts", description="最大尝试次数", default=1000, min=1, max=100000
     ) # pyright: ignore[reportInvalidTypeForm]
     
     min_size: bpy.props.FloatProperty(
@@ -22,6 +22,17 @@ class ADTProps(bpy.types.PropertyGroup):
     ) # pyright: ignore[reportInvalidTypeForm]
     
     add_box_size: bpy.props.FloatProperty(
-        name="Add Box Size", description="附加体比例", default=0.7, min=0, max=11
+        name="Add Box Size", description="附加体比例", default=0.5, min=0, max=11
     ) # pyright: ignore[reportInvalidTypeForm]
     
+    offset_minthick: bpy.props.FloatProperty(
+        name="Offset Minthick", description="最小厚度", default=0.05, min=0, max=10
+    ) # pyright: ignore[reportInvalidTypeForm]
+    
+    offset_maxthick: bpy.props.FloatProperty(
+        name="Offset Maxthick", description="最大厚度", default=0.1, min=0, max=10
+    ) # pyright: ignore[reportInvalidTypeForm]
+    
+    offset_maxoffset: bpy.props.FloatProperty(
+        name="Max Offset", description="最大偏移", default=1, min=0, max=1
+    ) # pyright: ignore[reportInvalidTypeForm]

@@ -42,19 +42,19 @@ class Merge_panel(bpy.types.Panel):
         layout.operator("ronge_adt.merge", text="增加Merge")
         
          
-class Nest_panel(bpy.types.Panel):
-    """Nest生成"""
+# class Nest_panel(bpy.types.Panel):
+#     """Nest生成"""
 
-    bl_label = "+Nest"
-    bl_idname = "VIEW3D_PT_nest_panel"
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "UI"
-    bl_category = "ADT"
+#     bl_label = "+Nest"
+#     bl_idname = "VIEW3D_PT_nest_panel"
+#     bl_space_type = "VIEW_3D"
+#     bl_region_type = "UI"
+#     bl_category = "ADT"
 
-    def draw(self, context):
-        layout = self.layout
+#     def draw(self, context):
+#         layout = self.layout
 
-        layout.operator("ronge_adt.nest", text="增加Neste")
+#         layout.operator("ronge_adt.nest", text="增加Neste")
         
         
 class Branch_panel(bpy.types.Panel):
@@ -70,3 +70,24 @@ class Branch_panel(bpy.types.Panel):
         layout = self.layout
 
         layout.operator("ronge_adt.branch", text="增加Branch")
+        
+class Offset_panel(bpy.types.Panel):
+    """Offset形变"""  
+    
+    bl_label = "@Offset"
+    bl_idname = "VIEW3D_PT_offset_panel"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "ADT"
+
+    def draw(self, context):
+        layout = self.layout
+
+        box = layout.box()
+        box.label(text="生成参数:")
+        props = context.scene.adt_props
+        box.prop(props, "offset_minthick", text="最小厚度")
+        box.prop(props, "offset_maxthick", text="最大厚度")
+        box.prop(props, "offset_maxoffset", text="最大偏移")
+        
+        layout.operator("ronge_adt.offset", text="Offset形变")
