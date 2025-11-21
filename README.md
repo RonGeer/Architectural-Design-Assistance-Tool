@@ -1,10 +1,10 @@
 # Architectural-Design-Assistance-Tool
 Blender-based Architectural Design Assistant Tool
 
-增加规则：
+基型规则：
     Merge
-    Nest
     Branch
+    Extract
 
 形变规则：
     Offset
@@ -14,4 +14,5 @@ Blender-based Architectural Design Assistant Tool
 剔除规则：
     Carve
     Frature
-    Extract
+    Expland
+    
