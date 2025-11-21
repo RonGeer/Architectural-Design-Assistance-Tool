@@ -44,6 +44,8 @@ class Merge(bpy.types.Operator):
 
             if is_intersecting and not is_inside:
                 fun.calBool(baseBox, addBox, "add")
+                fun.setActive(baseBox)
+                bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
                 break
             else:
                 fun.delobj(addBox)
@@ -77,11 +79,14 @@ class Branch(bpy.types.Operator):
         d3 = fun.randomValue(props.min_size,props.max_size)
 
         box1 = fun.crateBoxWithDir(fun.dir2Vec3(0),updir,dir1,w1,h,d1)
-        box2 = fun.crateBoxWithDir(fun.dir2Vec3(0),updir,dir2,w2,h,d2)
-        box3 = fun.crateBoxWithDir(fun.dir2Vec3(0),updir,dir3,w3,h,d3)
+        box2 = fun.crateBoxWithDir(fun.dir2Vec3(0)+updir*0.00001,updir,dir2,w2,h,d2)
+        box3 = fun.crateBoxWithDir(fun.dir2Vec3(0)+updir*0.00002,updir,dir3,w3,h,d3)
 
         fun.calBool(box1, box2, "add")
         fun.calBool(box1, box3, "add")
+        
+        fun.optimizeMesh(box1)
+        box1.name = "BaseBox"
         
         return {"FINISHED"}
     
@@ -125,6 +130,9 @@ class Extract(bpy.types.Operator):
                 
                 box = fun.calBool(addedbox, fixedsubbox, "sub")
                 fun.optimizeMesh(box)
+                
+                fun.setActive(box)
+                bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
                 break
             else:
                 fun.delobj(addBox)
@@ -134,49 +142,6 @@ class Extract(bpy.types.Operator):
                     return {"CANCELLED"}
 
         return {"FINISHED"}
-
-
-# class Nest(bpy.types.Operator):
-#     """剔除规则：Nest"""
-
-#     bl_idname = "ronge_adt.nest"
-#     bl_label = "Nest"
-
-#     def execute(self, context):
-#         props = context.scene.adt_props
-
-#         baseBox = None
-#         if fun.isExists("BaseBox"):
-#             baseBox = bpy.data.objects["BaseBox"]
-#         else:
-#             baseBox = fun.randomCube(props.min_size, props.max_size, props.max_area)
-#             baseBox.name = "BaseBox"
-
-#         addBox = None
-#         for attempt in range(props.max_attempts):
-#             addBox = fun.randomCube(
-#                 props.min_size * props.add_box_size,
-#                 props.max_size * props.add_box_size,
-#                 props.max_area,
-#             )
-
-#             is_intersecting = fun.isIntersect(baseBox, addBox)
-#             is_inside = fun.isInside(baseBox, addBox)
-
-#             if not is_intersecting and is_inside:
-#                 fun.snapEdge(baseBox, addBox, "-z")
-#                 addBox.location.z = addBox.location.z - 0.01
-#                 fun.calBool(baseBox, addBox, "sub")
-#                 break
-#             else:
-#                 fun.delobj(addBox)
-
-#                 if attempt == props.max_attempts - 1:
-#                     self.report({"WARNING"}, f"无法在{props.max_attempts}次尝试内生成")
-#                     return {"CANCELLED"}
-
-#         return {"FINISHED"}
-
 
 class Offset(bpy.types.Operator):
     """形变规则：Offset"""
@@ -200,6 +165,23 @@ class Offset(bpy.types.Operator):
             fun.calBool(baseBox, shell, "add")
 
 
+        return {"FINISHED"}
+
+class Twist(bpy.types.Operator):
+    """形变规则：Twist"""  
+    
+    bl_idname = "ronge_adt.twist"
+    bl_label = "Twist"
+    
+    def execute(self, context):
+        props = context.scene.adt_props
+        
+        baseBox = bpy.data.objects["BaseBox"]
+        dir = fun.randomDir()
+        
+        fun.cutLineWithDir(baseBox,dir)
+        fun.addTwist(baseBox,dir,fun.randomValue(0,props.twist_maxangle))
+        
         return {"FINISHED"}
 
 class Shift(bpy.types.Operator):

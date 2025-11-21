@@ -7,9 +7,15 @@ from mathutils import Vector, Matrix
 
 if 1 == 1:  # 基础函数
 
-    def cross(v1,v2):
-        return Vector((v1[1]*v2[2]-v1[2]*v2[1],v1[2]*v2[0]-v1[0]*v2[2],v1[0]*v2[1]-v1[1]*v2[0]))
-    
+    def cross(v1, v2):
+        return Vector(
+            (
+                v1[1] * v2[2] - v1[2] * v2[1],
+                v1[2] * v2[0] - v1[0] * v2[2],
+                v1[0] * v2[1] - v1[1] * v2[0],
+            )
+        )
+
     def dir2Vec3(dir):
         if dir == "+x":
             return Vector((1, 0, 0))
@@ -82,44 +88,93 @@ if 1 == 1:  # 基础函数
 
 
 if 1 == 1:  # 生成函数
-    
-    def optimizeMesh(obj, merge_threshold=0.001):
-        
-        setActive(obj)
-        
-        bpy.ops.object.mode_set(mode='EDIT')
-        bm = bmesh.from_edit_mesh(obj.data)
 
-        bmesh.ops.remove_doubles(
-            bm, 
-            verts=bm.verts, 
-            dist=merge_threshold
-        )
+    def addTwist(obj, dir, angle):
+        """SimpleDeform"""
+        mod = obj.modifiers.new(name="SimpleDeform", type="SIMPLE_DEFORM")
         
-        bmesh.update_edit_mesh(obj.data)
+        if dir == "+x" or dir == "-x":
+            mod.deform_axis = 'X'
+        elif dir == "+y" or dir == "-y":
+            mod.deform_axis = 'Y'
+        elif dir == "+z" or dir == "-z":
+            mod.deform_axis = 'Z'
+
+        mod.angle = angle
         
-        bpy.ops.object.mode_set(mode='OBJECT')
+        applyMod(obj, "SimpleDeform")
         
         return obj
-    def randomInsidePoint(obj):
         
+    
+    def cutLineWithDir(obj, stringdir, interval=0.01):
         maxx, maxy, maxz, minx, miny, minz = getBound(obj)
-        
+        min = -math.inf
+        max = math.inf
+
+        if stringdir == "+x" or stringdir == "-x":
+            min = minx
+            max = maxx
+        if stringdir == "+y" or stringdir == "-y":
+            min = miny
+            max = maxy
+        if stringdir == "+z" or stringdir == "-z":
+            min = minz
+            max = maxz
+
+        maxstep = int((max - min) / interval)
+
+        dir = dir2Vec3(stringdir)
+        start = dir * (min + interval)
+
+        bpy.ops.object.mode_set(mode="EDIT")
+        for i in range(maxstep):
+
+            bpy.ops.mesh.select_all(action="SELECT")
+
+            bpy.ops.mesh.bisect(
+                plane_co=start + dir * i * interval,
+                plane_no=dir,
+                flip=False,
+            )
+        bpy.ops.object.mode_set(mode="OBJECT")
+
+    def optimizeMesh(obj, merge_threshold=0.001):
+
+        setActive(obj)
+
+        bpy.ops.object.mode_set(mode="EDIT")
+        bm = bmesh.from_edit_mesh(obj.data)
+
+        bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=merge_threshold)
+
+        bmesh.update_edit_mesh(obj.data)
+
+        bpy.ops.object.mode_set(mode="OBJECT")
+
+        return obj
+
+    def randomInsidePoint(obj):
+
+        maxx, maxy, maxz, minx, miny, minz = getBound(obj)
+
         posx = randomValue(minx, maxx)
         posy = randomValue(miny, maxy)
         posz = randomValue(minz, maxz)
-        
+
         return Vector((posx, posy, posz))
-    
+
     def randomDir():
         return random.choice(["+x", "+y", "+z", "-x", "-y", "-z"])
-    
-    def randomVector(dir = Vector((0,0,0))):
+
+    def randomVector(dir=Vector((0, 0, 0))):
         """dir为限定的垂直方向（Vector）"""
-        
-        rdir = Vector((randomValue(-1,1),randomValue(-1,1),randomValue(-1,1))).normalized()
-        
-        if dir == Vector((0,0,0)):
+
+        rdir = Vector(
+            (randomValue(-1, 1), randomValue(-1, 1), randomValue(-1, 1))
+        ).normalized()
+
+        if dir == Vector((0, 0, 0)):
             return rdir
         else:
             dir_component = rdir.dot(dir)
@@ -256,7 +311,8 @@ if 1 == 1:  # 生成函数
             )
         )
 
-        box.matrix_world = rotation_matrix
+        box.rotation_euler = rotation_matrix.to_euler()
+        bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
 
         box.location = point
 
@@ -325,9 +381,9 @@ if 1 == 1:  # 逻辑函数
         return True, biggerobj
 
     def isPontinside(point, obj):
-        
+
         maxx, maxy, maxz, minx, miny, minz = getBound(obj)
-        
+
         if (
             point[0] > maxx
             or point[0] < minx

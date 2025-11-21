@@ -16,6 +16,7 @@ classes = [
     operators.Merge,
     operators.Extract,
     operators.Offset,
+    operators.Twist,
     operators.Shift,
     operators.Carve,
     operators.Branch,
@@ -23,10 +24,12 @@ classes = [
     props.ADTProps,
     ui.Prop_panel,
     ui.Merge_panel,
+    ui.Branch_panel,
     ui.Extract_panel,
     ui.Offset_panel,
+    ui.Twist_panel,
     ui.Shift_panel,
-    ui.Branch_panel
+    
     # ui.Nest_panel,
     
     

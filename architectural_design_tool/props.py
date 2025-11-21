@@ -48,3 +48,7 @@ class ADTProps(bpy.types.PropertyGroup):
     shift_maxcutbox: bpy.props.FloatProperty(
         name="Is Rotate", description="最大剪切体大小", default=1000, min=0, max=999999999
     ) # pyright: ignore[reportInvalidTypeForm]
+    
+    twist_maxangle: bpy.props.FloatProperty(
+        name="Max Angle", description="最大旋转角度", default=1.5707963, min=0, max=6.2831852
+    ) # pyright: ignore[reportInvalidTypeForm]
