@@ -59,31 +59,22 @@ if 1 == 1:  # 基础函数
 
     def getBound(obj):
         """OutPut:+x,+y,+z,-x,-y,-z"""
-        verts = [obj.matrix_world @ v.co for v in obj.data.vertices]
-
-        maxx, maxy, maxz, minx, miny, minz = (
-            -math.inf,
-            -math.inf,
-            -math.inf,
-            math.inf,
-            math.inf,
-            math.inf,
-        )
-
-        for co in verts:
-            if co[0] > maxx:
-                maxx = co[0]
-            if co[0] < minx:
-                minx = co[0]
-            if co[1] > maxy:
-                maxy = co[1]
-            if co[1] < miny:
-                miny = co[1]
-            if co[2] > maxz:
-                maxz = co[2]
-            if co[2] < minz:
-                minz = co[2]
-
+        
+        maxx = maxy = maxz = -float('inf')
+        minx = miny = minz = float('inf')
+        
+        # 遍历顶点，计算边界框
+        for v in obj.data.vertices:
+            co = obj.matrix_world @ v.co
+            
+            # 更新边界值
+            if co.x > maxx: maxx = co.x
+            if co.x < minx: minx = co.x
+            if co.y > maxy: maxy = co.y
+            if co.y < miny: miny = co.y
+            if co.z > maxz: maxz = co.z
+            if co.z < minz: minz = co.z
+        
         return maxx, maxy, maxz, minx, miny, minz
 
 
@@ -109,23 +100,23 @@ if 1 == 1:  # 生成函数
     
     def cutLineWithDir(obj, stringdir, interval=0.01):
         maxx, maxy, maxz, minx, miny, minz = getBound(obj)
-        min = -math.inf
-        max = math.inf
+        imin = 0
+        imax = 0
 
         if stringdir == "+x" or stringdir == "-x":
-            min = minx
-            max = maxx
+            imin = minx
+            imax = maxx
         if stringdir == "+y" or stringdir == "-y":
-            min = miny
-            max = maxy
+            imin = miny
+            imax = maxy
         if stringdir == "+z" or stringdir == "-z":
-            min = minz
-            max = maxz
+            imin = minz
+            imax = maxz
 
-        maxstep = int((max - min) / interval)
+        maxstep = int((imax - imin) / interval)
 
         dir = dir2Vec3(stringdir)
-        start = dir * (min + interval)
+        start = dir * (imin + interval)
 
         bpy.ops.object.mode_set(mode="EDIT")
         for i in range(maxstep):

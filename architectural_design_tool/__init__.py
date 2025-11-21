@@ -20,7 +20,6 @@ classes = [
     operators.Shift,
     operators.Carve,
     operators.Branch,
-    # operators.Nest,
     props.ADTProps,
     ui.Prop_panel,
     ui.Merge_panel,
@@ -29,10 +28,7 @@ classes = [
     ui.Offset_panel,
     ui.Twist_panel,
     ui.Shift_panel,
-    
-    # ui.Nest_panel,
-    
-    
+    ui.Carve_panel
 ]
 
 

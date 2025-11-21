@@ -128,3 +128,17 @@ class Twist_panel(bpy.types.Panel):
         props = context.scene.adt_props
         box.prop(props, "twist_maxangle", text="最大旋转角度")
         layout.operator("ronge_adt.twist", text="Twist形变")
+        
+class Carve_panel(bpy.types.Panel):
+    """Carve剔除"""  
+    
+    bl_label = "@Carve"
+    bl_idname = "VIEW3D_PT_carve_panel"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "ADT" 
+    
+    def draw(self, context):
+        layout = self.layout        
+        
+        layout.operator("ronge_adt.carve", text="Carve剔除")

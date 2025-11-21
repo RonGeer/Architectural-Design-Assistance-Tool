@@ -66,9 +66,10 @@ class Branch(bpy.types.Operator):
         props = context.scene.adt_props
         
         updir = fun.dir2Vec3(fun.randomDir())
+        updir1 = fun.dir2Vec3(fun.randomDir())
         dir1 = fun.randomVector(updir)
         dir2 = fun.randomVector(updir)
-        dir3 = fun.randomVector(updir)
+        dir3 = fun.randomVector(updir1)
         
         h = fun.randomValue(props.min_size*props.add_box_size, props.max_size*props.add_box_size)
         w1 = fun.randomValue(props.min_size*props.add_box_size, props.max_size*props.add_box_size)
@@ -80,7 +81,7 @@ class Branch(bpy.types.Operator):
 
         box1 = fun.crateBoxWithDir(fun.dir2Vec3(0),updir,dir1,w1,h,d1)
         box2 = fun.crateBoxWithDir(fun.dir2Vec3(0)+updir*0.00001,updir,dir2,w2,h,d2)
-        box3 = fun.crateBoxWithDir(fun.dir2Vec3(0)+updir*0.00002,updir,dir3,w3,h,d3)
+        box3 = fun.crateBoxWithDir(fun.dir2Vec3(0)+updir1*0.00002,updir1,dir3,w3,h,d3)
 
         fun.calBool(box1, box2, "add")
         fun.calBool(box1, box3, "add")
