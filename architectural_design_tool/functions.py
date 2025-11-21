@@ -10,7 +10,7 @@ if 1 == 1:  # 基础函数
 
     def applyMod(obj, name):
         bpy.context.view_layer.objects.active = obj
-        bpy.ops.object.modifier_apply(modifier=name)
+        bpy.ops.object.modifier_apply(modifier=name)  
 
 
 if 1 == 1:  # 生成函数
@@ -66,6 +66,12 @@ if 1 == 1:  # 生成函数
 
 
 if 1 == 1:  # 逻辑函数
+    
+    def isExists(name):  # 判断是否存在
+        for obj in bpy.data.objects:
+            if obj.name == name:
+                return True
+        return False
 
     def isIntersect(boxA, boxB):  # 判断是否相交
         bm1 = bmesh.new()
