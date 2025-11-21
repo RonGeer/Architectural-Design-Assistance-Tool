@@ -85,3 +85,39 @@ class Nest(bpy.types.Operator):
         fun.snapEdge(baseBox,addBox,"-z")
         
         return {"FINISHED"}
+
+class Branch(bpy.types.Operator):
+    """增加规则：Branch"""
+
+    bl_idname = "ronge_adt.branch"
+    bl_label = "Branch"
+
+    def execute(self, context):
+        props = context.scene.adt_props
+        
+        baseBox = None
+        if fun.isExists("BaseBox"):
+            baseBox = bpy.data.objects["BaseBox"]
+        else:
+            baseBox = fun.randomCube(props.min_size, props.max_size, props.max_area)
+            baseBox.name = "BaseBox"
+            
+        addBox = None
+        for attempt in range(props.max_attempts):
+            addBox = fun.randomCube(props.min_size*props.add_box_size, props.max_size*props.add_box_size, props.max_area)
+            
+            is_intersecting = fun.isIntersect(baseBox, addBox)
+            is_inside = fun.isInside(baseBox, addBox)
+        
+            if is_intersecting and not is_inside:
+                fun.calBool(baseBox, addBox, "sub")
+                break
+            else:
+                fun.delobj(addBox)
+            
+                if attempt == props.max_attempts - 1:
+                        self.report({'WARNING'}, 
+                                f"无法在{props.max_attempts}次尝试内生成") 
+                        return {"CANCELLED"}
+        
+        return {"FINISHED"}
