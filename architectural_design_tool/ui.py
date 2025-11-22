@@ -127,6 +127,7 @@ class Twist_panel(bpy.types.Panel):
         box.label(text="生成参数:")
         props = context.scene.adt_props
         box.prop(props, "twist_maxangle", text="最大旋转角度")
+        box.prop(props,"twist_cutinterval",text="剪切间隔")
         layout.operator("ronge_adt.twist", text="Twist形变")
         
 class Carve_panel(bpy.types.Panel):
@@ -142,3 +143,22 @@ class Carve_panel(bpy.types.Panel):
         layout = self.layout        
         
         layout.operator("ronge_adt.carve", text="Carve剔除")
+        
+class Frature_panel(bpy.types.Panel):
+    """Frature剔除"""
+    
+    bl_label = "@Frature"   
+    bl_idname = "VIEW3D_PT_frature_panel"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "ADT" 
+    
+    def draw(self, context):
+        layout = self.layout        
+        
+        box = layout.box()
+        box.label(text="生成参数:")
+        props = context.scene.adt_props
+        box.prop(props, "frature_maxwidth", text="最大剔除宽度")
+        box.prop(props, "frature_minwidth", text="最小剔除宽度")
+        layout.operator("ronge_adt.frature", text="Frature剔除")

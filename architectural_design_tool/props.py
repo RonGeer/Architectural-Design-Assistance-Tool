@@ -1,9 +1,6 @@
 import bpy
 
 class ADTProps(bpy.types.PropertyGroup):
-    # number: bpy.props.FloatProperty(
-    #     name="Number", description="数字", default=42, min=0, max=1000
-    # ) # pyright: ignore[reportInvalidTypeForm]
     
     #全局变量
     max_attempts: bpy.props.IntProperty(
@@ -49,6 +46,19 @@ class ADTProps(bpy.types.PropertyGroup):
         name="Is Rotate", description="最大剪切体大小", default=1000, min=0, max=999999999
     ) # pyright: ignore[reportInvalidTypeForm]
     
+    #Twist变量
     twist_maxangle: bpy.props.FloatProperty(
         name="Max Angle", description="最大旋转角度", default=1.5707963, min=0, max=6.2831852
     ) # pyright: ignore[reportInvalidTypeForm]
+    twist_cutinterval: bpy.props.FloatProperty(
+        name="Cut Interval", description="剪切间隔", default=0.05, min=0, max=1
+    ) # pyright: ignore[reportInvalidTypeForm]
+    
+    #Frature变量
+    frature_minwidth: bpy.props.FloatProperty(
+        name="Min Width", description="最小厚度", default=0.05, min=0, max=100
+    ) # pyright: ignore[reportInvalidTypeForm]
+    frature_maxwidth: bpy.props.FloatProperty(
+        name="Max Width", description="最大厚度", default=0.2, min=0, max=100
+    ) # pyright: ignore[reportInvalidTypeForm]
+    

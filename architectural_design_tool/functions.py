@@ -5,8 +5,11 @@ import math
 from mathutils.bvhtree import BVHTree
 from mathutils import Vector, Matrix
 
-if 1 == 1:  # 基础函数
+if 1:  # 基础函数
 
+    def randomInt(min = 1,max = 3):
+        return random.randint(min,max)
+    
     def cross(v1, v2):
         return Vector(
             (
@@ -32,7 +35,7 @@ if 1 == 1:  # 基础函数
         else:
             return Vector((0, 0, 0))
 
-    def randomValue(min, max):
+    def randomValue(min = 0, max = 1):
         return random.uniform(min, max)
 
     def randomBool():
@@ -76,9 +79,36 @@ if 1 == 1:  # 基础函数
             if co.z < minz: minz = co.z
         
         return maxx, maxy, maxz, minx, miny, minz
+    
+    def randomInsidePoint(obj):
+
+        maxx, maxy, maxz, minx, miny, minz = getBound(obj)
+
+        posx = randomValue(minx, maxx)
+        posy = randomValue(miny, maxy)
+        posz = randomValue(minz, maxz)
+
+        return Vector((posx, posy, posz))
+
+    def randomDir():
+        return random.choice(["+x", "+y", "+z", "-x", "-y", "-z"])
+
+    def randomVector(dir=Vector((0, 0, 0))):
+        """dir为限定的垂直方向（Vector）"""
+
+        rdir = Vector(
+            (randomValue(-1, 1), randomValue(-1, 1), randomValue(-1, 1))
+        ).normalized()
+
+        if dir == Vector((0, 0, 0)):
+            return rdir
+        else:
+            dir_component = rdir.dot(dir)
+            caled_rdir = rdir - dir_component * dir
+            return caled_rdir.normalized()
 
 
-if 1 == 1:  # 生成函数
+if 1:  # 生成函数
 
     def addTwist(obj, dir, angle):
         """SimpleDeform"""
@@ -97,8 +127,7 @@ if 1 == 1:  # 生成函数
         
         return obj
         
-    
-    def cutLineWithDir(obj, stringdir, interval=0.01):
+    def cutLineWithDir(obj, stringdir, interval=0.05):
         maxx, maxy, maxz, minx, miny, minz = getBound(obj)
         imin = 0
         imax = 0
@@ -144,33 +173,6 @@ if 1 == 1:  # 生成函数
         bpy.ops.object.mode_set(mode="OBJECT")
 
         return obj
-
-    def randomInsidePoint(obj):
-
-        maxx, maxy, maxz, minx, miny, minz = getBound(obj)
-
-        posx = randomValue(minx, maxx)
-        posy = randomValue(miny, maxy)
-        posz = randomValue(minz, maxz)
-
-        return Vector((posx, posy, posz))
-
-    def randomDir():
-        return random.choice(["+x", "+y", "+z", "-x", "-y", "-z"])
-
-    def randomVector(dir=Vector((0, 0, 0))):
-        """dir为限定的垂直方向（Vector）"""
-
-        rdir = Vector(
-            (randomValue(-1, 1), randomValue(-1, 1), randomValue(-1, 1))
-        ).normalized()
-
-        if dir == Vector((0, 0, 0)):
-            return rdir
-        else:
-            dir_component = rdir.dot(dir)
-            caled_rdir = rdir - dir_component * dir
-            return caled_rdir.normalized()
 
     def randomCube(min_size, max_size, max_area):
         lenghx = randomValue(min_size, max_size)
@@ -310,7 +312,7 @@ if 1 == 1:  # 生成函数
         return box
 
 
-if 1 == 1:  # 逻辑函数
+if 1:  # 逻辑函数
 
     def isExists(name):  # 判断是否存在
         for obj in bpy.data.objects:
