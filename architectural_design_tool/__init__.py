@@ -21,6 +21,7 @@ classes = [
     operators.Shift,
     operators.Carve,
     operators.Frature,
+    operators.Expland,
     props.ADTProps,
     ui.Prop_panel,
     ui.Merge_panel,
@@ -30,7 +31,8 @@ classes = [
     ui.Twist_panel,
     ui.Shift_panel,
     ui.Carve_panel,
-    ui.Frature_panel
+    ui.Frature_panel,
+    ui.Expland_panel,
 ]
 
 

@@ -347,3 +347,24 @@ class Frature(bpy.types.Operator):
         fun.calBool(baseBox, wall, "sub")
 
         return {"FINISHED"}
+
+class Expland(bpy.types.Operator):
+    """剔除规则：Expland"""
+    
+    bl_idname = "ronge_adt.expland"
+    bl_label = "Expland"
+    
+    def execute(self, context):
+        props = context.scene.adt_props
+        
+        baseBox = bpy.data.objects["BaseBox"]
+        center = fun.centerPos(baseBox)
+        shifted_center = center + fun.randomVector()*fun.randomValue(props.expland_minoffset, props.expland_maxoffset)
+        
+        pos = fun.randomInsidePoint(baseBox)
+        dir = shifted_center - pos
+        cutvolume = fun.crateBoxWithDir(pos, fun.randomVector(dir), dir,1000,1000,1000)
+        
+        fun.calBool(baseBox, cutvolume, "sub")
+        
+        return {"FINISHED"}

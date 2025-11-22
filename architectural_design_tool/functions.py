@@ -106,6 +106,10 @@ if 1:  # 基础函数
             dir_component = rdir.dot(dir)
             caled_rdir = rdir - dir_component * dir
             return caled_rdir.normalized()
+        
+    def centerPos(obj):
+        maxx, maxy, maxz, minx, miny, minz = getBound(obj)
+        return Vector(((maxx + minx) / 2, (maxy + miny) / 2, (maxz + minz) / 2))
 
 
 if 1:  # 生成函数

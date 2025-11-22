@@ -62,3 +62,11 @@ class ADTProps(bpy.types.PropertyGroup):
         name="Max Width", description="最大厚度", default=0.2, min=0, max=100
     ) # pyright: ignore[reportInvalidTypeForm]
     
+    #Expland变量
+    expland_maxoffset: bpy.props.FloatProperty(
+        name="Max Offset", description="最大偏移", default=5, min=0, max=10
+    ) # pyright: ignore[reportInvalidTypeForm]
+    expland_minoffset: bpy.props.FloatProperty(
+        name="Min Offset", description="最小偏移", default=1, min=0, max=10
+    ) # pyright: ignore[reportInvalidTypeForm]
+    

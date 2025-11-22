@@ -162,3 +162,22 @@ class Frature_panel(bpy.types.Panel):
         box.prop(props, "frature_maxwidth", text="最大剔除宽度")
         box.prop(props, "frature_minwidth", text="最小剔除宽度")
         layout.operator("ronge_adt.frature", text="Frature剔除")
+        
+class Expland_panel(bpy.types.Panel):
+    """Expland剔除"""
+
+    bl_label = "@Expland"
+    bl_idname = "VIEW3D_PT_expland_panel"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "ADT" 
+    
+    def draw(self, context):
+        layout = self.layout        
+        
+        box = layout.box()
+        box.label(text="生成参数:")
+        props = context.scene.adt_props
+        box.prop(props, "expland_maxoffset", text="最大偏移")
+        box.prop(props, "expland_minoffset", text="最小偏移")
+        layout.operator("ronge_adt.expland", text="Expland剔除")
