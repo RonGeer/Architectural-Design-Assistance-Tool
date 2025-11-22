@@ -7,9 +7,152 @@ from mathutils import Vector, Matrix
 
 if 1:  # 基础函数
 
-    def randomInt(min = 1,max = 3):
-        return random.randint(min,max)
-    
+    def onePass(id1, id2, offset1, offset2, addname):
+        obj = bpy.context.scene.objects["BaseBox"]
+        id2 += 1
+
+        new_obj = obj.copy()
+        new_obj.data = obj.data.copy()
+        bpy.context.collection.objects.link(new_obj)
+        bpy.context.view_layer.objects.active = new_obj
+        new_obj.location = Vector((offset1 * id1, offset2 * id2, 0))
+        new_obj.name = str(id1) + addname
+
+    def clean():
+        """清理未使用的对象和数据块"""
+        # 清理孤立的数据块
+        for mesh in bpy.data.meshes:
+            if mesh.users == 0:
+                bpy.data.meshes.remove(mesh)
+
+        for obj in bpy.data.objects:
+            if obj.users == 0:
+                bpy.data.objects.remove(obj)
+
+        bpy.ops.wm.redraw_timer(type="DRAW_WIN_SWAP", iterations=1)
+
+    def setBoxPos(obj_id, spacing, is_3d=False):
+        """
+        螺旋式排列物体位置函数
+
+        参数:
+            obj_id: 物体的ID（从0开始）
+            spacing: 分割距离（棋盘格单位大小）
+            is_3d: 是否使用3D空间排列（默认为False，只在Z=0平面排列）
+
+        返回:
+            Vector: 物体应该在的位置（x, y, z）
+        """
+        if obj_id == 0:
+            return Vector((0, 0, 0))  # 第一个物体放在原点
+
+        # 计算物体所在的"层"（从原点开始的螺旋圈数）
+        layer = 0
+        total_positions = 1  # 原点已占用1个位置
+
+        while True:
+            layer += 1
+            # 每层的物体数量：2D中是8*layer，3D中是24*layer²+2
+            if is_3d:
+                layer_positions = 24 * layer * layer + 2  # 立方体的表面积，减去已计算的
+            else:
+                layer_positions = 8 * layer  # 正方形周长
+
+            if total_positions + layer_positions > obj_id:
+                break
+            total_positions += layer_positions
+
+        # 计算物体在当前层中的位置（从0开始）
+        pos_in_layer = obj_id - total_positions
+
+        if is_3d:
+            # 3D螺旋：在一个立方体表面螺旋前进
+            # 立方体的尺寸
+            cube_size = layer * 2
+
+            # 计算每个面的位置数量
+            face_positions = cube_size * cube_size  # 每个面的位置数量
+
+            # 确定物体在哪个面
+            if pos_in_layer < face_positions:
+                # 底面 (z=-layer)
+                x = (pos_in_layer % cube_size) - layer
+                y = (pos_in_layer // cube_size) - layer
+                z = -layer
+            elif pos_in_layer < 2 * face_positions:
+                # 前面 (y=layer)
+                adjusted_pos = pos_in_layer - face_positions
+                x = (adjusted_pos % cube_size) - layer
+                z = (adjusted_pos // cube_size) - layer
+                y = layer
+            elif pos_in_layer < 3 * face_positions:
+                # 顶面 (z=layer)
+                adjusted_pos = pos_in_layer - 2 * face_positions
+                x = layer - (adjusted_pos % cube_size)
+                y = (adjusted_pos // cube_size) - layer
+                z = layer
+            elif pos_in_layer < 4 * face_positions:
+                # 后面 (y=-layer)
+                adjusted_pos = pos_in_layer - 3 * face_positions
+                x = layer - (adjusted_pos % cube_size)
+                z = (adjusted_pos // cube_size) - layer
+                y = -layer
+            elif pos_in_layer < 5 * face_positions:
+                # 右面 (x=layer)
+                adjusted_pos = pos_in_layer - 4 * face_positions
+                y = layer - (adjusted_pos % cube_size)
+                z = (adjusted_pos // cube_size) - layer
+                x = layer
+            else:
+                # 左面 (x=-layer)
+                adjusted_pos = pos_in_layer - 5 * face_positions
+                y = (adjusted_pos % cube_size) - layer
+                z = (adjusted_pos // cube_size) - layer
+                x = -layer
+
+            # 应用间距
+            position = Vector((x * spacing, y * spacing, z * spacing))
+
+        else:
+            # 2D螺旋：在一个正方形上螺旋前进
+            side_length = layer * 2
+
+            # 计算每条边的位置数量
+            edge_positions = side_length
+
+            # 确定物体在哪条边
+            if pos_in_layer < edge_positions:
+                # 底边 (y=-layer)
+                x = (pos_in_layer % edge_positions) - layer
+                y = -layer
+            elif pos_in_layer < 2 * edge_positions:
+                # 右边 (x=layer)
+                adjusted_pos = pos_in_layer - edge_positions
+                x = layer
+                y = (adjusted_pos % edge_positions) - layer
+            elif pos_in_layer < 3 * edge_positions:
+                # 顶边 (y=layer)
+                adjusted_pos = pos_in_layer - 2 * edge_positions
+                x = layer - (adjusted_pos % edge_positions)
+                y = layer
+            else:
+                # 左边 (x=-layer)
+                adjusted_pos = pos_in_layer - 3 * edge_positions
+                x = -layer
+                y = layer - (adjusted_pos % edge_positions)
+
+            # 应用间距，2D情况下z=0
+            position = Vector((x * spacing, y * spacing, 0))
+
+        return position
+
+    def shuffleList(list):
+        random.shuffle(list)
+        return list
+
+    def randomInt(min=1, max=3):
+        return random.randint(min, max)
+
     def cross(v1, v2):
         return Vector(
             (
@@ -35,7 +178,7 @@ if 1:  # 基础函数
         else:
             return Vector((0, 0, 0))
 
-    def randomValue(min = 0, max = 1):
+    def randomValue(min=0, max=1):
         return random.uniform(min, max)
 
     def randomBool():
@@ -62,24 +205,30 @@ if 1:  # 基础函数
 
     def getBound(obj):
         """OutPut:+x,+y,+z,-x,-y,-z"""
-        
-        maxx = maxy = maxz = -float('inf')
-        minx = miny = minz = float('inf')
-        
+
+        maxx = maxy = maxz = -float("inf")
+        minx = miny = minz = float("inf")
+
         # 遍历顶点，计算边界框
         for v in obj.data.vertices:
             co = obj.matrix_world @ v.co
-            
+
             # 更新边界值
-            if co.x > maxx: maxx = co.x
-            if co.x < minx: minx = co.x
-            if co.y > maxy: maxy = co.y
-            if co.y < miny: miny = co.y
-            if co.z > maxz: maxz = co.z
-            if co.z < minz: minz = co.z
-        
+            if co.x > maxx:
+                maxx = co.x
+            if co.x < minx:
+                minx = co.x
+            if co.y > maxy:
+                maxy = co.y
+            if co.y < miny:
+                miny = co.y
+            if co.z > maxz:
+                maxz = co.z
+            if co.z < minz:
+                minz = co.z
+
         return maxx, maxy, maxz, minx, miny, minz
-    
+
     def randomInsidePoint(obj):
 
         maxx, maxy, maxz, minx, miny, minz = getBound(obj)
@@ -106,7 +255,7 @@ if 1:  # 基础函数
             dir_component = rdir.dot(dir)
             caled_rdir = rdir - dir_component * dir
             return caled_rdir.normalized()
-        
+
     def centerPos(obj):
         maxx, maxy, maxz, minx, miny, minz = getBound(obj)
         return Vector(((maxx + minx) / 2, (maxy + miny) / 2, (maxz + minz) / 2))
@@ -114,24 +263,32 @@ if 1:  # 基础函数
 
 if 1:  # 生成函数
 
+    def snapGround(obj):
+        maxx, maxy, maxz, minx, miny, minz = getBound(obj)
+        move_distance = -minz
+        obj.location.z += move_distance
+        return obj
+
     def addTwist(obj, dir, angle):
         """SimpleDeform"""
         mod = obj.modifiers.new(name="SimpleDeform", type="SIMPLE_DEFORM")
-        
+
         if dir == "+x" or dir == "-x":
-            mod.deform_axis = 'X'
+            mod.deform_axis = "X"
         elif dir == "+y" or dir == "-y":
-            mod.deform_axis = 'Y'
+            mod.deform_axis = "Y"
         elif dir == "+z" or dir == "-z":
-            mod.deform_axis = 'Z'
+            mod.deform_axis = "Z"
 
         mod.angle = angle
-        
+
         applyMod(obj, "SimpleDeform")
-        
+
         return obj
-        
+
     def cutLineWithDir(obj, stringdir, interval=0.05):
+        setActive(obj)
+        obj.select_set(True)
         maxx, maxy, maxz, minx, miny, minz = getBound(obj)
         imin = 0
         imax = 0

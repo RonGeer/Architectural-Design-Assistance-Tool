@@ -16,6 +16,113 @@ class Setbase(bpy.types.Operator):
         return {"FINISHED"}
 
 
+class Auto(bpy.types.Operator):
+    """开始自动生成"""
+
+    bl_idname = "ronge_adt.auto"
+    bl_label = "Auto"
+
+    def execute(self, context):
+        props = context.scene.adt_props
+
+        for i in range(props.auto_count):
+
+            offset1 = 2
+            offset2 = 3
+            addname = ""
+            # 基形生成
+            first = fun.randomInt()
+            if first == 1:
+                bpy.ops.ronge_adt.merge()
+                addname += "_merge"
+                fun.onePass(i, -1, offset1, offset2, addname)
+            elif first == 2:
+                bpy.ops.ronge_adt.branch()
+                addname += "_branch"
+                fun.onePass(i, -1, offset1, offset2, addname)
+            elif first == 3:
+                bpy.ops.ronge_adt.extract()
+                addname += "_extract"
+                fun.onePass(i, -1, offset1, offset2, addname)
+            else:
+                bpy.ops.ronge_adt.merge()
+                addname += "_merge"
+                fun.onePass(i, -1, offset1, offset2, addname)
+
+            # 形变和切割
+            todolist = []
+            for j in range(props.auto_deformation_count):
+                todolist.append(1)
+            for j in range(props.auto_culling_count):
+                todolist.append(2)
+            if props.auto_isorder:
+                fun.shuffleList(todolist)
+            for j in range(len(todolist)):
+                if todolist[j] == 1:
+                    dothing = fun.randomInt()
+                    if dothing == 1:
+                        bpy.ops.ronge_adt.offset()
+                        addname += "_offset"
+                        fun.onePass(i, j, offset1, offset2, addname)
+                    elif dothing == 2:
+                        bpy.ops.ronge_adt.twist()
+                        addname += "_twist"
+                        fun.onePass(i, j, offset1, offset2, addname)
+                    elif dothing == 3:
+                        bpy.ops.ronge_adt.shift()
+                        addname += "_shift"
+                        fun.onePass(i, j, offset1, offset2, addname)
+                    else:
+                        continue
+                elif todolist[j] == 2:
+                    dothing = fun.randomInt()
+                    if dothing == 1:
+                        bpy.ops.ronge_adt.carve()
+                        addname += "_carve"
+                        fun.onePass(i, j, offset1, offset2, addname)
+                    elif dothing == 2:
+                        bpy.ops.ronge_adt.frature()
+                        addname += "_frature"
+                        fun.onePass(i, j, offset1, offset2, addname)
+                    elif dothing == 3:
+                        bpy.ops.ronge_adt.expland()
+                        addname += "_expland"
+                        fun.onePass(i, j, offset1, offset2, addname)
+                    else:
+                        continue
+                else:
+                    continue
+
+            fun.clean()
+        fun.delobj(bpy.context.scene.objects["BaseBox"])
+        return {"FINISHED"}
+
+
+class BrowseSavePath(bpy.types.Operator):
+    """浏览保存路径"""
+
+    bl_idname = "ronge_adt.browse_save_path"
+    bl_label = "浏览保存路径"
+
+    directory: bpy.props.StringProperty(subtype="DIR_PATH")
+
+    def execute(self, context):
+        try:
+            if self.directory and len(self.directory.strip()) > 0:
+                context.scene.adt_props.auto_savepath = self.directory
+                self.report({"INFO"}, f"保存路径已设置: {self.directory}")
+            else:
+                self.report({"WARNING"}, "无效的路径")
+            return {"FINISHED"}
+        except Exception as e:
+            self.report({"ERROR"}, f"设置路径失败: {str(e)}")
+            return {"CANCELLED"}
+
+    def invoke(self, context, event):
+        context.window_manager.fileselect_add(self)
+        return {"RUNNING_MODAL"}
+
+
 class Merge(bpy.types.Operator):
     """基形规则：Merge"""
 
@@ -25,12 +132,13 @@ class Merge(bpy.types.Operator):
     def execute(self, context):
         props = context.scene.adt_props
 
-        baseBox = None
-        if fun.isExists("BaseBox"):
-            baseBox = bpy.data.objects["BaseBox"]
-        else:
-            baseBox = fun.randomCube(props.min_size, props.max_size, props.max_area)
-            baseBox.name = "BaseBox"
+        for obj in bpy.context.scene.objects:
+            if obj.name == "BaseBox":
+                fun.delobj(obj)
+                break
+                
+        baseBox = fun.randomCube(props.min_size, props.max_size, props.max_area)
+        baseBox.name = "BaseBox"
 
         for attempt in range(props.max_attempts):
             addBox = fun.randomCube(
@@ -56,6 +164,7 @@ class Merge(bpy.types.Operator):
                     self.report({"WARNING"}, f"无法在{props.max_attempts}次尝试内生成")
                     return {"CANCELLED"}
 
+        print("Merge")
         return {"FINISHED"}
 
 
@@ -67,6 +176,11 @@ class Branch(bpy.types.Operator):
 
     def execute(self, context):
         props = context.scene.adt_props
+        
+        for obj in bpy.context.scene.objects:
+            if obj.name == "BaseBox":
+                fun.delobj(obj)
+                break
 
         updir = fun.dir2Vec3(fun.randomDir())
         updir1 = fun.dir2Vec3(fun.randomDir())
@@ -102,8 +216,10 @@ class Branch(bpy.types.Operator):
         fun.calBool(box1, box3, "add")
 
         fun.optimizeMesh(box1)
+
         box1.name = "BaseBox"
 
+        print("Branch")
         return {"FINISHED"}
 
 
@@ -116,12 +232,13 @@ class Extract(bpy.types.Operator):
     def execute(self, context):
         props = context.scene.adt_props
 
-        baseBox = None
-        if fun.isExists("BaseBox"):
-            baseBox = bpy.data.objects["BaseBox"]
-        else:
-            baseBox = fun.randomCube(props.min_size, props.max_size, props.max_area)
-            baseBox.name = "BaseBox"
+        for obj in bpy.context.scene.objects:
+            if obj.name == "BaseBox":
+                fun.delobj(obj)
+                break
+        
+        baseBox = fun.randomCube(props.min_size, props.max_size, props.max_area)
+        baseBox.name = "BaseBox"
 
         for attempt in range(props.max_attempts):
             addBox = fun.randomCube(
@@ -147,8 +264,8 @@ class Extract(bpy.types.Operator):
 
                 box = fun.calBool(addedbox, fixedsubbox, "sub")
                 fun.optimizeMesh(box)
+                box.name = "BaseBox"
 
-                fun.setActive(box)
                 bpy.ops.object.transform_apply(
                     location=False, rotation=True, scale=False
                 )
@@ -160,6 +277,7 @@ class Extract(bpy.types.Operator):
                     self.report({"WARNING"}, f"无法在{props.max_attempts}次尝试内生成")
                     return {"CANCELLED"}
 
+        print("Extract")
         return {"FINISHED"}
 
 
@@ -171,8 +289,8 @@ class Offset(bpy.types.Operator):
 
     def execute(self, context):
         props = context.scene.adt_props
-
-        baseBox = bpy.data.objects["BaseBox"]
+            
+        baseBox = bpy.context.scene.objects["BaseBox"]
         fun.setActive(baseBox)
         shell = fun.copyobj(baseBox)
 
@@ -184,6 +302,7 @@ class Offset(bpy.types.Operator):
         else:
             fun.calBool(baseBox, shell, "add")
 
+        print("Offset")
         return {"FINISHED"}
 
 
@@ -195,13 +314,14 @@ class Twist(bpy.types.Operator):
 
     def execute(self, context):
         props = context.scene.adt_props
-
-        baseBox = bpy.data.objects["BaseBox"]
+            
+        baseBox = bpy.context.scene.objects["BaseBox"]
         dir = fun.randomDir()
 
         fun.cutLineWithDir(baseBox, dir)
         fun.addTwist(baseBox, dir, fun.randomValue(0, props.twist_maxangle))
 
+        print("Twist")
         return {"FINISHED"}
 
 
@@ -213,8 +333,8 @@ class Shift(bpy.types.Operator):
 
     def execute(self, context):
         props = context.scene.adt_props
-
-        baseBox = bpy.data.objects["BaseBox"]
+            
+        baseBox = bpy.context.scene.objects["BaseBox"]
         pos = fun.randomInsidePoint(baseBox)
         up = fun.dir2Vec3(fun.randomDir())
         dir = fun.randomVector(up)
@@ -255,6 +375,7 @@ class Shift(bpy.types.Operator):
         box.name = "BaseBox"
         fun.optimizeMesh(box)
 
+        print("Shift")
         return {"FINISHED"}
 
 
@@ -266,13 +387,8 @@ class Carve(bpy.types.Operator):
 
     def execute(self, context):
         props = context.scene.adt_props
-
-        baseBox = None
-        if fun.isExists("BaseBox"):
-            baseBox = bpy.data.objects["BaseBox"]
-        else:
-            baseBox = fun.randomCube(props.min_size, props.max_size, props.max_area)
-            baseBox.name = "BaseBox"
+            
+        baseBox = bpy.context.scene.objects["BaseBox"]
 
         addBox = None
         for attempt in range(props.max_attempts):
@@ -287,14 +403,16 @@ class Carve(bpy.types.Operator):
 
             if is_intersecting and not is_inside:
                 fun.calBool(baseBox, addBox, "sub")
+                fun.setActive(baseBox)
                 break
             else:
                 fun.delobj(addBox)
-
+                fun.setActive(baseBox)
                 if attempt == props.max_attempts - 1:
                     self.report({"WARNING"}, f"无法在{props.max_attempts}次尝试内生成")
                     return {"CANCELLED"}
 
+        print("Carve")
         return {"FINISHED"}
 
 
@@ -306,8 +424,8 @@ class Frature(bpy.types.Operator):
 
     def execute(self, context):
         props = context.scene.adt_props
-
-        baseBox = bpy.data.objects["BaseBox"]
+            
+        baseBox = bpy.context.scene.objects["BaseBox"]
         updir = fun.dir2Vec3(fun.randomDir())
         width = fun.randomValue(props.frature_minwidth, props.frature_maxwidth)
 
@@ -336,35 +454,42 @@ class Frature(bpy.types.Operator):
         shell = fun.copyobj(half_wall1)
         shell = fun.offsetShell(shell, 0.0001, 0.0001, 0.0001)
         fixedhalf_wall1 = fun.calBool(half_wall1, shell, "add")
-        
+
         shell = fun.copyobj(half_wall2)
         shell = fun.offsetShell(shell, 0.0001, 0.0001, 0.0001)
         fixedhalf_pwall2 = fun.calBool(half_wall2, shell, "add")
-        
+
         wall = fun.calBool(fixedhalf_wall1, fixedhalf_pwall2, "add")
         wall = fun.calBool(wall, fixedcorner, "add")
-        
+
         fun.calBool(baseBox, wall, "sub")
 
+        print("Frature")
         return {"FINISHED"}
+
 
 class Expland(bpy.types.Operator):
     """剔除规则：Expland"""
-    
+
     bl_idname = "ronge_adt.expland"
     bl_label = "Expland"
-    
+
     def execute(self, context):
         props = context.scene.adt_props
-        
-        baseBox = bpy.data.objects["BaseBox"]
+            
+        baseBox = bpy.context.scene.objects["BaseBox"]
         center = fun.centerPos(baseBox)
-        shifted_center = center + fun.randomVector()*fun.randomValue(props.expland_minoffset, props.expland_maxoffset)
-        
+        shifted_center = center + fun.randomVector() * fun.randomValue(
+            props.expland_minoffset, props.expland_maxoffset
+        )
+
         pos = fun.randomInsidePoint(baseBox)
         dir = shifted_center - pos
-        cutvolume = fun.crateBoxWithDir(pos, fun.randomVector(dir), dir,1000,1000,1000)
-        
+        cutvolume = fun.crateBoxWithDir(
+            pos, fun.randomVector(dir), dir, 1000, 1000, 1000
+        )
+
         fun.calBool(baseBox, cutvolume, "sub")
-        
+
+        print("Expland")
         return {"FINISHED"}

@@ -13,6 +13,8 @@ from . import props
 
 classes = [
     operators.Setbase,
+    operators.Auto,
+    operators.BrowseSavePath,
     operators.Merge,
     operators.Branch,
     operators.Extract,
@@ -23,6 +25,7 @@ classes = [
     operators.Frature,
     operators.Expland,
     props.ADTProps,
+    ui.Auto_panel,
     ui.Prop_panel,
     ui.Merge_panel,
     ui.Branch_panel,

@@ -1,5 +1,43 @@
 import bpy
 
+class Auto_panel(bpy.types.Panel):
+    """自动生成"""
+    
+    bl_label = "Auto"
+    bl_idname = "VIEW3D_PT_auto_panel"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "ADT"
+    
+    def draw(self, context):
+        layout = self.layout
+        
+        # 基本参数区域
+        box = layout.box()
+        box.label(text="生成参数:")
+        props = context.scene.adt_props
+        box.prop(props, "auto_count", text="自动生成数量")
+        box.prop(props, "auto_deformation_count", text="形变执行次数")
+        box.prop(props, "auto_culling_count", text="剔除执行次数")
+        box.prop(props, "auto_isorder", text="是否按序执行")
+        
+        # 保存选项区域
+        box = layout.box()
+        box.label(text="保存选项:")
+        box.prop(props, "auto_isarrange", text="是否在场景中展示")
+        box.prop(props, "auto_issave", text="是否自动保存")
+        if props.auto_issave:
+            # 使用两列布局，一行显示路径，一行显示按钮
+            row = box.row()
+            row.prop(props, "auto_savepath", text="保存路径")
+            
+            row = box.row()
+            row.operator("ronge_adt.browse_save_path", text="浏览文件夹", icon='FILE_FOLDER')
+        
+        # 执行按钮
+        layout.operator("ronge_adt.auto", text="开始自动生成")
+
+
 class Prop_panel(bpy.types.Panel):
     """全局参数"""
 

@@ -2,6 +2,35 @@ import bpy
 
 class ADTProps(bpy.types.PropertyGroup):
     
+    #自动运行参数
+    auto_isarrange: bpy.props.BoolProperty(
+        name="Is Arrange", description="是否在场景中展示", default=True
+    ) # pyright: ignore[reportInvalidTypeForm]
+    
+    auto_issave: bpy.props.BoolProperty(
+        name="Is Save", description="是否自动保存", default=True
+    ) # pyright: ignore[reportInvalidTypeForm]
+    
+    auto_savepath: bpy.props.StringProperty(
+        name="Save Path", description="保存路径", default="", maxlen=1024, subtype='DIR_PATH'
+    ) # pyright: ignore[reportInvalidTypeForm]
+    
+    auto_isorder: bpy.props.BoolProperty(
+        name="Is Order", description="是否按序执行", default=True
+        
+    ) # pyright: ignore[reportInvalidTypeForm]
+    auto_count : bpy.props.IntProperty(
+        name="Deformation Count", description="自动生成数量", default=50, min=1, max=100000
+    ) # pyright: ignore[reportInvalidTypeForm]
+    
+    auto_deformation_count : bpy.props.IntProperty(
+        name="Deformation Count", description="形变执行次数", default=1, min=1, max=10
+    ) # pyright: ignore[reportInvalidTypeForm]
+    
+    auto_culling_count: bpy.props.IntProperty(
+        name="Culling Count", description="剔除执行次数", default=1, min=1, max=10
+    ) # pyright: ignore[reportInvalidTypeForm]
+    
     #全局变量
     max_attempts: bpy.props.IntProperty(
         name="Max Attempts", description="最大尝试次数", default=1000, min=1, max=100000
